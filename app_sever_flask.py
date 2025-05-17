@@ -10,6 +10,11 @@ from data_processing.preprocess_docs import preprocess_document
 from config import TOP_K_RESULTS
 
 app = Flask(__name__)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Simulated token for demonstration
 API_TOKEN = "secret-token-123"
@@ -17,7 +22,7 @@ API_TOKEN = "secret-token-123"
 # Silence third-party logging
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
-logging.getLogger('requests').setLevel(logging.WARNING)
+#logging.getLogger('requests').setLevel(logging.WARNING)
 logging.getLogger('ollama').setLevel(logging.WARNING)
 
 
@@ -70,16 +75,21 @@ def process_query(user_query: str) -> Optional[str]:
 @app.route("/query", methods=["POST"])
 def query_endpoint():
     if not check_auth(request):
+        logging.warning(f"Unauthorized access attempt from {request.remote_addr}")
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json()
     user_query = data.get("query", "").strip()
+
+    # Log the incoming query and source IP
+    logging.info(f"Received query from {request.remote_addr}: {user_query}")
 
     if not user_query:
         return jsonify({"error": "Empty query provided."}), 400
 
     response = process_query(user_query)
     return jsonify({"response": response})
+
 
 
 if __name__ == "__main__":
