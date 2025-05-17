@@ -22,7 +22,7 @@ API_TOKEN = "secret-token-123"
 # Silence third-party logging
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
-#logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger('requests').setLevel(logging.WARNING)
 logging.getLogger('ollama').setLevel(logging.WARNING)
 
 
