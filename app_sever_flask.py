@@ -8,7 +8,7 @@ from llm import get_llm_response, LLMError
 from RAG.retrieval import retrieve_relevant_documents, get_document_stats
 from data_processing.preprocess_docs import preprocess_document
 from config import TOP_K_RESULTS
-
+from datetime import datetime
 app = Flask(__name__)
 # Configure logging
 logging.basicConfig(
@@ -80,9 +80,19 @@ def query_endpoint():
 
     data = request.get_json()
     user_query = data.get("query", "").strip()
-
-    # Log the incoming query and source IP
     logging.info(f"Received query from {request.remote_addr}: {user_query}")
+    # Enhanced logging
+    logging.info(f"""
+    --- Incoming Request ---
+    Time: {datetime.utcnow().isoformat()} UTC
+    IP: {request.remote_addr}
+    Query: {user_query}
+    Headers: {{
+        'User-Agent': {request.headers.get("User-Agent")},
+        'Content-Type': {request.headers.get("Content-Type")}
+    }}
+    ------------------------
+    """)
 
     if not user_query:
         return jsonify({"error": "Empty query provided."}), 400
